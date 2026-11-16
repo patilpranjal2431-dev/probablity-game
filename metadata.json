@@ -1,0 +1,6 @@
+{
+  "name": "Edge Lab",
+  "description": "Virtual-coin quantitative finance game platform with probability and expected-value decision grading.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

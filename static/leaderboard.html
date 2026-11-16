@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Edge Lab — Skill vs Coins Leaderboards</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body data-page="leaderboard">
+    <main class="container">
+      <header class="topbar">
+        <h1 class="topbar-title">Edge Lab — Leaderboards</h1>
+        <div class="topbar-actions">
+          <a href="/lobby" class="nav-link">Live Lobby</a>
+          <a href="/orderbook" class="nav-link">Order Book</a>
+          <a href="/skill-vs-luck" class="nav-link">Skill vs Luck</a>
+          <a href="/bankroll" class="nav-link">Bankroll</a>
+          <a href="/calibration" class="nav-link">Calibration</a>
+          <a href="/arena" class="nav-link">Bot Arena</a>
+          <a href="/lab" class="nav-link">Quant Lab</a>
+          <a href="/profile" class="nav-link">Profile</a>
+        </div>
+      </header>
+
+      <div id="lb-error" class="error-banner hidden" role="alert"></div>
+
+      <section class="card">
+        <div class="topbar" style="margin-bottom: 0.75rem; padding-bottom: 0.75rem;">
+          <div>
+            <h2 class="section-title" style="margin: 0;">Skill vs. Luck Standings</h2>
+            <p class="hint" style="margin: 0.3rem 0 0;">
+              Why can a player lead in <strong>Cumulative EV</strong> while trailing in <strong>Coins</strong>?
+              <a href="/skill-vs-luck" class="nav-link">Read the Skill vs. Luck explanation &rarr;</a>
+            </p>
+          </div>
+          <div class="topbar-actions">
+            <label class="user-label" style="display: inline-flex; align-items: center; gap: 0.4rem; cursor: pointer;">
+              <input id="include-bots-toggle" type="checkbox" />
+              Include Bots
+            </label>
+            <button type="button" id="refresh-lb-btn" class="btn btn-secondary">Refresh</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="card stack-gap">
+        <h2 class="section-title">Skill Leaderboard — Ranked by Cumulative EV</h2>
+        <p class="hint" style="margin-top: -0.5rem; margin-bottom: 1rem;">
+          Measures decision quality independent of showdown/runout variance. Lower regret means closer to EV-optimal play.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Player</th>
+                <th class="text-right">Cumulative EV</th>
+                <th class="text-right">Total Regret</th>
+                <th class="text-right">Optimal %</th>
+                <th class="text-right">Decisions (Hands)</th>
+                <th class="text-right">Coins</th>
+              </tr>
+            </thead>
+            <tbody id="skill-lb-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="card stack-gap">
+        <h2 class="section-title">Coins Leaderboard — Ranked by Balance (Luck + Skill)</h2>
+        <p class="hint" style="margin-top: -0.5rem; margin-bottom: 1rem;">
+          Measures realized virtual coins from the audit ledger, combining decision EV with finite-sample deal and showdown luck.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Player</th>
+                <th class="text-right">Coin Balance</th>
+                <th class="text-right">Net Game Profit</th>
+                <th class="text-right">Cumulative EV</th>
+                <th class="text-right">Total Regret</th>
+                <th class="text-right">Hands</th>
+              </tr>
+            </thead>
+            <tbody id="coins-lb-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="my-grades-section" class="card stack-gap hidden">
+        <h2 class="section-title">Your Graded Decisions (EV vs. Best Decision &amp; Regret)</h2>
+        <div class="stats-grid">
+          <div class="card">
+            <div class="stat-label">Your Cumulative EV</div>
+            <div id="my-cum-ev" class="stat-value mono">--</div>
+          </div>
+          <div class="card">
+            <div class="stat-label">Your Total Regret</div>
+            <div id="my-total-regret" class="stat-value mono">--</div>
+          </div>
+          <div class="card">
+            <div class="stat-label">Optimal Decision Rate</div>
+            <div id="my-optimal-rate" class="stat-value mono">--</div>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Hand</th>
+                <th>Game</th>
+                <th>Private</th>
+                <th class="text-right">Equity</th>
+                <th>Taken (EV)</th>
+                <th>Best (EV)</th>
+                <th class="text-right">Regret</th>
+              </tr>
+            </thead>
+            <tbody id="my-grades-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <script src="/static/leaderboard.js"></script>
+  </body>
+</html>

@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Edge Lab — Profile</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body data-page="profile">
+    <main class="container">
+      <header class="topbar">
+        <h1 class="topbar-title">Edge Lab</h1>
+        <div class="topbar-actions">
+          <a href="/lobby" class="nav-link">Live Lobby</a>
+          <a href="/orderbook" class="nav-link">Order Book</a>
+          <a href="/leaderboard" class="nav-link">Leaderboards</a>
+          <a href="/bankroll" class="nav-link">Bankroll</a>
+          <a href="/calibration" class="nav-link">Calibration</a>
+          <a href="/arena" class="nav-link">Bot Arena</a>
+          <a href="/lab" class="nav-link">Quant Lab</a>
+          <a href="/docs" class="nav-link">Docs</a>
+          <span id="nav-username" class="user-label"></span>
+          <button type="button" id="logout-btn" class="btn btn-secondary">Log Out</button>
+        </div>
+      </header>
+
+      <div id="profile-error" class="error-banner hidden" role="alert"></div>
+
+      <section class="stats-grid">
+        <div class="card">
+          <div class="stat-label">Virtual Coin Balance</div>
+          <div id="wallet-balance" class="stat-value mono">--</div>
+          <div class="stat-sub">Verified against transaction ledger</div>
+        </div>
+
+        <div class="card">
+          <div class="stat-label">Account</div>
+          <div id="profile-username" class="stat-value">--</div>
+          <div id="profile-email" class="stat-sub">--</div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2 class="section-title">Transaction History</h2>
+        <p id="tx-empty" class="empty-state hidden">No transactions recorded yet.</p>
+        <div class="table-wrap">
+          <table id="tx-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Type</th>
+                <th>Description</th>
+                <th class="text-right">Amount</th>
+                <th class="text-right">Balance After</th>
+                <th class="text-right">Timestamp (UTC)</th>
+              </tr>
+            </thead>
+            <tbody id="tx-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>

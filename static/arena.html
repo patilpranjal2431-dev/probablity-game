@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Edge Lab — Bot Tournament Arena</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body data-page="arena">
+    <main class="container">
+      <header class="topbar">
+        <h1 class="topbar-title">Edge Lab — Bot Tournament Arena</h1>
+        <div class="topbar-actions">
+          <a href="/lobby" class="nav-link">Live Lobby</a>
+          <a href="/leaderboard" class="nav-link">Leaderboards</a>
+          <a href="/bankroll" class="nav-link">Bankroll</a>
+          <a href="/calibration" class="nav-link">Calibration</a>
+          <a href="/lab" class="nav-link">Quant Lab</a>
+          <a href="/profile" class="nav-link">Profile</a>
+          <a href="/" class="nav-link">Sign In</a>
+        </div>
+      </header>
+
+      <div id="arena-error" class="error-banner hidden" role="alert"></div>
+
+      <section class="card">
+        <h2 class="section-title">Round-Robin Bot Tournament</h2>
+        <form id="tournament-form" class="controls-row">
+          <div class="field">
+            <label for="game-select">Heads-Up Game</label>
+            <select id="game-select" name="game_type">
+              <option value="dice_betting">Heads-Up Dice Betting (d6)</option>
+              <option value="one_card_poker">Simplified 1-Card Poker (52-card)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="hands-input">Hands / Matchup</label>
+            <input id="hands-input" name="hands_per_matchup" type="number" min="20" max="2000" value="500" required />
+          </div>
+          <div class="field">
+            <label for="arena-seed-input">RNG Seed</label>
+            <input id="arena-seed-input" name="seed" type="number" min="0" max="2147483647" value="42" required />
+          </div>
+          <div class="field">
+            <button type="submit" class="btn btn-primary">Run Tournament</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="card stack-gap">
+        <h2 class="section-title">Leaderboard (Ranked by EV / Game)</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Bot</th>
+                <th class="text-right">Hands</th>
+                <th class="text-right">W-L-T</th>
+                <th class="text-right">Win Rate (95% CI)</th>
+                <th class="text-right">EV / Game (95% CI)</th>
+              </tr>
+            </thead>
+            <tbody id="leaderboard-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="card stack-gap">
+        <h2 class="section-title">Head-to-Head Matchups (Bot A Perspective)</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Matchup</th>
+                <th class="text-right">W-L-T</th>
+                <th class="text-right">Bot A Win Rate (95% CI)</th>
+                <th class="text-right">Bot A EV / Game (95% CI)</th>
+              </tr>
+            </thead>
+            <tbody id="matchups-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <script src="/static/arena.js"></script>
+  </body>
+</html>

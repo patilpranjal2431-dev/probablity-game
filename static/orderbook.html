@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Edge Lab — Order Book Market Making</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body data-page="orderbook">
+    <main class="container">
+      <header class="topbar">
+        <h1 class="topbar-title">Edge Lab — Order Book Simulation</h1>
+        <div class="topbar-actions">
+          <a href="/lobby" class="nav-link">Live Lobby</a>
+          <a href="/bankroll" class="nav-link">Bankroll</a>
+          <a href="/calibration" class="nav-link">Calibration</a>
+          <a href="/leaderboard" class="nav-link">Leaderboards</a>
+          <a href="/arena" class="nav-link">Bot Arena</a>
+          <a href="/docs" class="nav-link">Docs</a>
+          <a href="/profile" class="nav-link">Profile</a>
+        </div>
+      </header>
+
+      <div id="ob-error" class="error-banner hidden" role="alert"></div>
+
+      <section class="card">
+        <h2 class="section-title">New Market-Making Session</h2>
+        <p class="hint" style="margin-top: -0.4rem; margin-bottom: 1rem;">
+          Quote bid &amp; ask prices around a hidden fair value. Uninformed bots pay the spread; informed arbitrage bots pick off stale quotes (adverse selection).
+        </p>
+        <form id="ob-create-form" class="controls-row">
+          <div class="field">
+            <label for="ob-rounds">Rounds</label>
+            <input id="ob-rounds" name="num_rounds" type="number" min="5" max="25" value="10" required />
+          </div>
+          <div class="field">
+            <label for="ob-max-inv">Max Inventory (&plusmn;)</label>
+            <input id="ob-max-inv" name="max_inventory" type="number" min="3" max="50" value="10" required />
+          </div>
+          <div class="field">
+            <label for="ob-vol">Fair Value Volatility</label>
+            <input id="ob-vol" name="fundamental_volatility" type="number" min="0" max="5" step="0.25" value="1.0" required />
+          </div>
+          <div class="field">
+            <button type="submit" class="btn btn-primary">Start New Market</button>
+          </div>
+        </form>
+      </section>
+
+      <section id="ob-desk-panel" class="card stack-gap hidden">
+        <div class="topbar" style="margin-bottom: 1rem; padding-bottom: 0.65rem;">
+          <h2 id="ob-session-heading" class="section-title" style="margin: 0;">Session #--</h2>
+          <button type="button" id="ob-finish-btn" class="btn btn-secondary">Close &amp; Reveal Analysis</button>
+        </div>
+
+        <div class="stats-grid">
+          <div class="card">
+            <div class="stat-label">Round &amp; Status</div>
+            <div id="ob-round-val" class="stat-value mono">--</div>
+          </div>
+          <div class="card">
+            <div class="stat-label">Public Signal Hint</div>
+            <div id="ob-signal-val" class="stat-value mono">--</div>
+            <div class="stat-sub">Noisy observation near hidden fair value</div>
+          </div>
+          <div class="card">
+            <div class="stat-label">Cash</div>
+            <div id="ob-cash-val" class="stat-value mono">--</div>
+          </div>
+          <div class="card">
+            <div class="stat-label">Inventory</div>
+            <div id="ob-inv-val" class="stat-value mono">--</div>
+          </div>
+        </div>
+
+        <form id="ob-quote-form" class="controls-row">
+          <div class="field">
+            <label for="ob-bid-input">Your Bid Price</label>
+            <input id="ob-bid-input" name="bid_price" type="number" min="1" max="1000" step="0.1" required />
+          </div>
+          <div class="field">
+            <label for="ob-ask-input">Your Ask Price</label>
+            <input id="ob-ask-input" name="ask_price" type="number" min="1" max="1000" step="0.1" required />
+          </div>
+          <div class="field">
+            <label for="ob-size-input">Quote Size (1..5)</label>
+            <input id="ob-size-input" name="quote_size" type="number" min="1" max="5" value="2" required />
+          </div>
+          <div class="field">
+            <button type="submit" id="ob-quote-btn" class="btn btn-primary">Send Quote</button>
+          </div>
+        </form>
+
+        <div class="stats-grid stack-gap">
+          <div class="card">
+            <h3 class="section-title">Order Book Ladder</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Side</th>
+                    <th class="text-right">Price</th>
+                    <th class="text-right">Size</th>
+                    <th class="text-right">Source</th>
+                  </tr>
+                </thead>
+                <tbody id="ob-ladder-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3 class="section-title">Execution Tape (Observable Fills)</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Round</th>
+                    <th>Your Side</th>
+                    <th class="text-right">Price</th>
+                    <th class="text-right">Qty</th>
+                  </tr>
+                </thead>
+                <tbody id="ob-tape-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="ob-analysis-panel" class="card stack-gap hidden">
+        <h2 class="section-title">Post-Game Analysis — P&amp;L, Inventory &amp; Adverse Selection</h2>
+        <p id="ob-identity-note" class="hint" style="margin-top: -0.4rem; margin-bottom: 1rem;">--</p>
+
+        <div class="stats-grid">
+          <div class="card">
+            <div class="stat-label">Total Net P&amp;L</div>
+            <div id="an-total-pnl" class="stat-value mono">--</div>
+            <div id="an-fair-range" class="stat-sub">--</div>
+          </div>
+          <div class="card">
+            <div class="stat-label">Spread Captured</div>
+            <div id="an-spread-cap" class="stat-value mono amount-pos">--</div>
+            <div id="an-avg-spread" class="stat-sub">--</div>
+          </div>
+          <div class="card">
+            <div class="stat-label">Adverse Selection Cost</div>
+            <div id="an-adv-sel" class="stat-value mono amount-neg">--</div>
+            <div id="an-informed-share" class="stat-sub">--</div>
+          </div>
+          <div class="card">
+            <div class="stat-label">Inventory Drift P&amp;L</div>
+            <div id="an-inv-drift" class="stat-value mono">--</div>
+            <div id="an-max-inv" class="stat-sub">--</div>
+          </div>
+        </div>
+
+        <h3 class="section-title">Quotes vs. Revealed Hidden Fair Value</h3>
+        <div class="chart-box">
+          <svg
+            id="ob-quotes-chart"
+            class="chart-svg"
+            viewBox="0 0 820 300"
+            role="img"
+            aria-label="Bid and ask quotes plotted against hidden fair value"
+          ></svg>
+        </div>
+        <div class="legend">
+          <span class="legend-item"><span class="legend-swatch" style="background: #34d399;"></span>True Fair Value V_t</span>
+          <span class="legend-item"><span class="legend-swatch" style="border-top: 2px dashed #fbbf24;"></span>Your Ask Quote</span>
+          <span class="legend-item"><span class="legend-swatch" style="border-top: 2px dashed #38bdf8;"></span>Your Bid Quote</span>
+        </div>
+
+        <h3 class="section-title stack-gap">Mark-to-Market P&amp;L Trajectory</h3>
+        <div class="chart-box">
+          <svg
+            id="ob-pnl-chart"
+            class="chart-svg"
+            viewBox="0 0 820 260"
+            role="img"
+            aria-label="Cumulative mark-to-market P&L across rounds"
+          ></svg>
+        </div>
+
+        <h3 class="section-title stack-gap">Fill-by-Fill Adverse Selection Audit</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Rnd</th>
+                <th>Side</th>
+                <th>Bot Type</th>
+                <th class="text-right">Fill Price</th>
+                <th class="text-right">Fair Value</th>
+                <th class="text-right">Qty</th>
+                <th class="text-right">Spread</th>
+                <th class="text-right">Adv Sel</th>
+                <th class="text-right">Net Edge</th>
+              </tr>
+            </thead>
+            <tbody id="ob-audit-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="card stack-gap">
+        <h2 class="section-title">Your Sessions</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Status</th>
+                <th class="text-right">Progress</th>
+                <th class="text-right">Inventory</th>
+                <th class="text-right">Net P&amp;L</th>
+                <th class="text-right">Spread</th>
+                <th class="text-right">Adv Sel</th>
+                <th class="text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody id="ob-sessions-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <script src="/static/orderbook.js"></script>
+  </body>
+</html>

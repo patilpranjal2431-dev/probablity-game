@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Edge Lab — Bankroll &amp; Kelly Simulator</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body data-page="bankroll">
+    <main class="container">
+      <header class="topbar">
+        <h1 class="topbar-title">Edge Lab — Bankroll &amp; Kelly Simulator</h1>
+        <div class="topbar-actions">
+          <a href="/lobby" class="nav-link">Live Lobby</a>
+          <a href="/orderbook" class="nav-link">Order Book</a>
+          <a href="/calibration" class="nav-link">Calibration</a>
+          <a href="/leaderboard" class="nav-link">Leaderboards</a>
+          <a href="/lab" class="nav-link">Quant Lab</a>
+          <a href="/arena" class="nav-link">Bot Arena</a>
+          <a href="/profile" class="nav-link">Profile</a>
+        </div>
+      </header>
+
+      <div id="bankroll-error" class="error-banner hidden" role="alert"></div>
+
+      <section class="card">
+        <h2 class="section-title">Simulation Parameters</h2>
+        <form id="bankroll-form" class="controls-row">
+          <div class="field">
+            <label for="br-initial">Initial Bankroll</label>
+            <input id="br-initial" name="initial_bankroll" type="number" min="10" max="1000000" step="10" value="1000" required />
+          </div>
+          <div class="field">
+            <label for="br-prob">Win Prob (p)</label>
+            <input id="br-prob" name="win_prob" type="number" min="0.01" max="0.99" step="0.01" value="0.55" required />
+          </div>
+          <div class="field">
+            <label for="br-odds">Payout Odds (b:1)</label>
+            <input id="br-odds" name="payout_odds" type="number" min="0.1" max="50" step="0.1" value="1.0" required />
+          </div>
+          <div class="field">
+            <label for="br-frac">Bet Fraction (f)</label>
+            <input id="br-frac" name="bet_fraction" type="number" min="0.005" max="0.95" step="0.005" value="0.10" required />
+          </div>
+          <div class="field">
+            <label for="br-mode">Sizing Mode</label>
+            <select id="br-mode" name="sizing_mode">
+              <option value="proportional">Proportional (Fraction of Bankroll)</option>
+              <option value="fixed_stake">Fixed Unit Stake (f * Initial)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="br-bets">Bets / Path</label>
+            <input id="br-bets" name="num_bets" type="number" min="10" max="2000" value="200" required />
+          </div>
+          <div class="field">
+            <label for="br-paths">Paths</label>
+            <input id="br-paths" name="num_paths" type="number" min="50" max="5000" value="1000" required />
+          </div>
+          <div class="field">
+            <label for="br-ruin">Ruin Floor (blank=default)</label>
+            <input id="br-ruin" name="ruin_threshold" type="number" min="0" step="10" placeholder="100 prop / 0 fixed" />
+          </div>
+          <div class="field">
+            <label for="br-seed">RNG Seed</label>
+            <input id="br-seed" name="seed" type="number" min="0" max="2147483647" value="42" required />
+          </div>
+          <div class="field">
+            <button type="submit" class="btn btn-primary">Simulate Bankroll</button>
+          </div>
+        </form>
+        <div class="action-bar">
+          <button type="button" id="btn-half-kelly" class="btn btn-secondary">Use Half Kelly</button>
+          <button type="button" id="btn-full-kelly" class="btn btn-secondary">Use Full Kelly</button>
+          <button type="button" id="btn-overbet-kelly" class="btn btn-secondary">Overbet 2.2x Kelly</button>
+        </div>
+      </section>
+
+      <section class="stats-grid stack-gap">
+        <div class="card">
+          <div class="stat-label">Full Kelly Fraction (f*)</div>
+          <div id="stat-kelly" class="stat-value mono">--</div>
+          <div id="stat-half-kelly" class="stat-sub">--</div>
+        </div>
+        <div class="card">
+          <div class="stat-label">Empirical Risk of Ruin</div>
+          <div id="stat-ror" class="stat-value mono">--</div>
+          <div id="stat-ror-sub" class="stat-sub">--</div>
+        </div>
+        <div class="card">
+          <div class="stat-label">Expected Log-Growth g(f)</div>
+          <div id="stat-growth" class="stat-value mono">--</div>
+          <div id="stat-growth-sub" class="stat-sub">--</div>
+        </div>
+        <div class="card">
+          <div class="stat-label">Median Terminal Bankroll</div>
+          <div id="stat-median" class="stat-value mono">--</div>
+          <div id="stat-median-sub" class="stat-sub">--</div>
+        </div>
+      </section>
+
+      <section class="card stack-gap">
+        <h2 class="section-title">Terminal Bankroll Outcome Distribution</h2>
+        <div class="chart-box">
+          <svg
+            id="histogram-chart"
+            class="chart-svg"
+            viewBox="0 0 820 320"
+            role="img"
+            aria-label="Histogram of terminal bankroll outcomes"
+          ></svg>
+        </div>
+      </section>
+
+      <section class="card stack-gap">
+        <h2 class="section-title">Bankroll Trajectory Percentiles (p10 / Median / p90)</h2>
+        <div class="chart-box">
+          <svg
+            id="trajectory-chart"
+            class="chart-svg"
+            viewBox="0 0 820 320"
+            role="img"
+            aria-label="Bankroll percentile trajectories across bets"
+          ></svg>
+        </div>
+        <div class="legend">
+          <span class="legend-item"><span class="legend-swatch" style="background: #34d399;"></span>p90 (Upside)</span>
+          <span class="legend-item"><span class="legend-swatch" style="background: #38bdf8;"></span>p50 (Median)</span>
+          <span class="legend-item"><span class="legend-swatch" style="background: #fb7185;"></span>p10 (Downside)</span>
+        </div>
+      </section>
+
+      <section class="card stack-gap">
+        <h2 class="section-title">Kelly Criterion Growth Rate g(f) vs. Bet Fraction</h2>
+        <div class="chart-box">
+          <svg
+            id="kelly-chart"
+            class="chart-svg"
+            viewBox="0 0 820 300"
+            role="img"
+            aria-label="Expected log growth rate versus bet fraction"
+          ></svg>
+        </div>
+        <div class="legend">
+          <span class="legend-item"><span class="legend-swatch" style="background: #38bdf8;"></span>g(f) log-growth</span>
+          <span class="legend-item"><span class="legend-swatch" style="border-top: 2px dashed #34d399;"></span>Full Kelly f*</span>
+          <span class="legend-item"><span class="legend-swatch" style="border-top: 2px dashed #fbbf24;"></span>Chosen f</span>
+        </div>
+      </section>
+    </main>
+
+    <script src="/static/bankroll.js"></script>
+  </body>
+</html>

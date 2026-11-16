@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Edge Lab — Algorithms Explained</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body data-page="docs">
+    <main class="container">
+      <header class="topbar">
+        <h1 class="topbar-title">Edge Lab — Algorithms in Plain Language</h1>
+        <div class="topbar-actions">
+          <a href="/lab" class="nav-link">Quant Lab</a>
+          <a href="/arena" class="nav-link">Bot Arena</a>
+          <a href="/lobby" class="nav-link">Live Lobby</a>
+          <a href="/bankroll" class="nav-link">Bankroll</a>
+          <a href="/calibration" class="nav-link">Calibration</a>
+          <a href="/orderbook" class="nav-link">Order Book</a>
+          <a href="/leaderboard" class="nav-link">Leaderboards</a>
+          <a href="/api/docs" class="nav-link">OpenAPI</a>
+        </div>
+      </header>
+
+      <section class="card">
+        <h2 class="section-title">How Edge Lab Works Under the Hood</h2>
+        <p>
+          Every simulation, probability calculator, bot strategy, and P&amp;L audit in Edge Lab is written in
+          readable, pure Python with zero black-box shortcuts. Below is a plain-language guide to each algorithm,
+          the intuition behind it, and where to try it live.
+        </p>
+        <p class="hint" style="margin-bottom: 0;">
+          Quick jump:
+          <a href="#dp-dice" class="nav-link">1. DP Dice Sums</a> &middot;
+          <a href="#poker-counting" class="nav-link">2. Poker Combinatorics</a> &middot;
+          <a href="#mc-wilson" class="nav-link">3. Monte Carlo &amp; Wilson CI</a> &middot;
+          <a href="#bots" class="nav-link">4. Four Quant Bots</a> &middot;
+          <a href="#ev-regret" class="nav-link">5. Decision EV &amp; Regret</a> &middot;
+          <a href="#kelly-ror" class="nav-link">6. Kelly &amp; Risk of Ruin</a> &middot;
+          <a href="#brier" class="nav-link">7. Brier Calibration</a> &middot;
+          <a href="#orderbook" class="nav-link">8. Order Book &amp; Adverse Selection</a> &middot;
+          <a href="#rng-ledger" class="nav-link">9. RNG &amp; Audit Ledger</a>
+        </p>
+      </section>
+
+      <section id="dp-dice" class="card stack-gap">
+        <h2 class="section-title">1. Exact Dice Sums via Dynamic Programming (<span class="mono">app/quant/exact.py</span>)</h2>
+        <p>
+          <strong>Plain idea:</strong> If you roll 5 six-sided dice, listing every sequence takes
+          <span class="mono">6^5 = 7,776</span> steps (and for 15 dice, over 470 billion!). Instead, dynamic
+          programming builds the distribution <em>one die at a time</em>.
+        </p>
+        <ul>
+          <li>Start with 1 way to reach sum <span class="mono">0</span>: <span class="mono">{0: 1}</span>.</li>
+          <li>For each new die, walk through your current <span class="mono">(sum, ways)</span> table and add each face <span class="mono">1..6</span> to get the next table.</li>
+          <li>Divide each final count by <span class="mono">sides^num_dice</span> for exact probabilities.</li>
+        </ul>
+        <p class="stat-sub" style="margin-bottom: 0;">
+          Try it in <a href="/lab" class="nav-link">Quant Lab &rarr;</a>
+        </p>
+      </section>
+
+      <section id="poker-counting" class="card stack-gap">
+        <h2 class="section-title">2. Counting All 2,598,960 Five-Card Poker Hands (<span class="mono">app/quant/exact.py</span>)</h2>
+        <p>
+          <strong>Plain idea:</strong> Every 5-card hand from a 52-card deck belongs to exactly one of 10
+          categories. Using combinations <span class="mono">C(n, k)</span>, we count each tier while carefully
+          subtracting overlaps so no hand is counted twice:
+        </p>
+        <ul>
+          <li><strong>Royal Flush:</strong> <span class="mono">4</span> hands (10-J-Q-K-A in any of the 4 suits).</li>
+          <li><strong>Straight Flush:</strong> <span class="mono">10 &times; 4 &minus; 4 = 36</span> (10 possible high cards from 5-high wheel to A-high, minus the 4 royals).</li>
+          <li><strong>Flush (non-straight):</strong> <span class="mono">4 &times; C(13, 5) &minus; 40 = 5,108</span>.</li>
+          <li><strong>High Card:</strong> <span class="mono">(C(13, 5) &minus; 10) &times; (4^5 &minus; 4) = 1,302,540</span> (non-straight ranks with non-monochrome suits).</li>
+        </ul>
+        <p>
+          All 10 tiers sum to <strong>2,598,960</strong>, verified automatically by pytest. The same module also
+          computes <strong>Hypergeometric</strong> probabilities (drawing without replacement) and the
+          <strong>Birthday Collision</strong> curve (<span class="mono">50.73%</span> at 23 people).
+        </p>
+      </section>
+
+      <section id="mc-wilson" class="card stack-gap">
+        <h2 class="section-title">3. Monte Carlo, Wilson Confidence Intervals &amp; 1/&radic;n Convergence (<span class="mono">app/quant/monte_carlo.py</span>, <span class="mono">convergence.py</span>)</h2>
+        <p>
+          <strong>Plain idea:</strong> Simulate <span class="mono">n</span> independent trials with a fixed
+          <span class="mono">seed</span> (so runs are 100% reproducible) and count the fraction of hits
+          <span class="mono">p_hat = successes / n</span>.
+        </p>
+        <ul>
+          <li>
+            <strong>Why Wilson instead of the naive Wald interval?</strong> When <span class="mono">p</span> is near
+            0 or 1, the textbook formula <span class="mono">p_hat &plusmn; 1.96 &radic;(p_hat(1-p_hat)/n)</span> can
+            collapse to zero width or leave <span class="mono">[0, 1]</span>. The Wilson score interval solves the
+            confidence quadratic directly so bounds stay strictly in <span class="mono">[0, 1]</span> and maintain ~95% coverage.
+          </li>
+          <li>
+            <strong>Why error shrinks as 1/&radic;n:</strong> Standard deviation drops with the square root of
+            sample size. To cut Monte Carlo error in half, you need <strong>4&times;</strong> as many simulations,
+            producing a <span class="mono">-0.5</span> slope on a log-log error chart.
+          </li>
+        </ul>
+        <p class="stat-sub" style="margin-bottom: 0;">
+          Explore the log-log plot and coverage test in <a href="/lab" class="nav-link">Quant Lab &rarr;</a>
+        </p>
+      </section>
+
+      <section id="bots" class="card stack-gap">
+        <h2 class="section-title">4. The Four Quantitative Bots (<span class="mono">app/games/bots.py</span>)</h2>
+        <p>
+          <strong>Plain idea:</strong> Every bot receives the exact same privacy-safe
+          <span class="mono">PlayerObservation</span> (its own card/die, pot size, legal actions, and exact
+          showdown equity) and plays through the pure-Python state machine:
+        </p>
+        <ul>
+          <li><strong>Random Bot:</strong> Picks uniformly from legal moves and bet sizes. Acts as the sanity baseline.</li>
+          <li><strong>Cautious Bot:</strong> Demands a <span class="mono">+15%</span> equity buffer above pot odds to call and only value-bets the minimum with <span class="mono">&ge; 80%</span> equity.</li>
+          <li><strong>EV-Maximising Bot:</strong> Risk-neutral. Calls whenever <span class="mono">equity &times; (pot + to_call) &minus; to_call &ge; 0</span>, and when first to act picks the bet size (or check) with highest expected coin gain against a pot-odds opponent.</li>
+          <li><strong>Kelly-Sizing Bot:</strong> Maximizes long-run logarithmic stack growth using half-Kelly sizing (<span class="mono">0.5 &times; edge &times; own_stack</span>), scaling down bets to avoid busting.</li>
+        </ul>
+        <p class="stat-sub" style="margin-bottom: 0;">
+          Run round-robin tournaments in <a href="/arena" class="nav-link">Bot Arena &rarr;</a>
+        </p>
+      </section>
+
+      <section id="ev-regret" class="card stack-gap">
+        <h2 class="section-title">5. Decision EV Grading &amp; Regret (<span class="mono">app/games/grading.py</span>)</h2>
+        <p>
+          <strong>Plain idea:</strong> Winning a hand with bad math is luck; losing a hand after making the right
+          call is good skill hit by variance. After each live hand finishes, Edge Lab replays your exact decision
+          moment (before your opponent's card/die was revealed) and grades every legal option:
+        </p>
+        <p class="mono" style="padding: 0.75rem 1rem; background: var(--bg); border: 1px solid var(--border); border-radius: 6px;">
+          Regret = Best Legal EV &minus; Taken EV &ge; 0
+        </p>
+        <p>
+          Your cumulative EV powers the <strong>Skill Leaderboard</strong>, tracked separately from the
+          <strong>Coins Leaderboard</strong> (Skill + Luck).
+        </p>
+        <p class="stat-sub" style="margin-bottom: 0;">
+          Compare both tables in <a href="/leaderboard" class="nav-link">Leaderboards</a> or read the worked example on <a href="/skill-vs-luck" class="nav-link">Skill vs. Luck &rarr;</a>
+        </p>
+      </section>
+
+      <section id="kelly-ror" class="card stack-gap">
+        <h2 class="section-title">6. Bankroll Simulator: Kelly Criterion &amp; Risk of Ruin (<span class="mono">app/quant/bankroll.py</span>)</h2>
+        <p>
+          <strong>Plain idea:</strong> Even a favorable bet can wipe you out if you bet too big.
+          For win probability <span class="mono">p</span> and net payout odds <span class="mono">b</span>:
+        </p>
+        <ul>
+          <li>
+            <strong>Full Kelly Fraction:</strong> <span class="mono">f* = max(0, p &minus; (1 &minus; p) / b)</span> maximizes
+            long-run compound growth <span class="mono">E[ln(B_{t+1} / B_t)]</span>. Overbetting past <span class="mono">2f*</span>
+            turns positive edge into <em>negative</em> compound growth.
+          </li>
+          <li>
+            <strong>Gambler's Ruin:</strong> For fixed even-money bets (<span class="mono">b = 1</span>) starting with
+            <span class="mono">k</span> units, the exact chance of ever hitting zero is
+            <span class="mono">((1 &minus; p) / p)^k</span> when <span class="mono">p &gt; 0.5</span>.
+          </li>
+        </ul>
+        <p class="stat-sub" style="margin-bottom: 0;">
+          Test full vs. half vs. over-Kelly paths in <a href="/bankroll" class="nav-link">Bankroll Simulator &rarr;</a>
+        </p>
+      </section>
+
+      <section id="brier" class="card stack-gap">
+        <h2 class="section-title">7. Probability Calibration &amp; Brier Score (<span class="mono">app/quant/calibration.py</span>)</h2>
+        <p>
+          <strong>Plain idea:</strong> If you say an event has a 70% chance, it should happen roughly 7 out of 10
+          times. Edge Lab generates random dice, poker, hypergeometric, and birthday prompts with a secret server
+          outcome <span class="mono">y &isin; {0, 1}</span> and scores your forecast <span class="mono">p_hat</span> using:
+        </p>
+        <p class="mono" style="padding: 0.75rem 1rem; background: var(--bg); border: 1px solid var(--border); border-radius: 6px;">
+          Brier Score = (p_hat &minus; y)&sup2; &isin; [0, 1] &nbsp;&nbsp;(0 = perfect, 0.25 = coin-flip 50% guess)
+        </p>
+        <p>
+          Because Brier score is a <em>strictly proper scoring rule</em>, you minimize your expected score only by
+          reporting your honest probability belief—hedging toward 50% or overconfident 0%/100% predictions both
+          hurt your long-run score.
+        </p>
+        <p class="stat-sub" style="margin-bottom: 0;">
+          Track your reliability curve in <a href="/calibration" class="nav-link">Calibration Trainer &rarr;</a>
+        </p>
+      </section>
+
+      <section id="orderbook" class="card stack-gap">
+        <h2 class="section-title">8. Order Book Market Making &amp; Adverse Selection (<span class="mono">app/games/order_book.py</span>)</h2>
+        <p>
+          <strong>Plain idea:</strong> A market maker posts both a buy price (<span class="mono">bid</span>) and a
+          sell price (<span class="mono">ask</span>) around an unobserved fair value <span class="mono">V_t</span>,
+          seeing only a noisy public signal.
+        </p>
+        <ul>
+          <li><strong>Noise &amp; Retail Bots</strong> trade unpredictably and pay you the half-spread <span class="mono">(ask &minus; bid)/2</span>.</li>
+          <li><strong>Informed Arbitrage Bots</strong> know <span class="mono">V_t</span> and immediately snipe your quote whenever your ask is too low or your bid is too high (<strong>adverse selection</strong>).</li>
+          <li>
+            <strong>Exact P&amp;L Conservation Identity:</strong> After the session ends, Edge Lab reveals <span class="mono">V_t</span>
+            and verifies down to the cent that:
+            <span class="mono">Total P&amp;L = Spread Captured &minus; Adverse Selection Cost + Inventory Drift P&amp;L</span>.
+          </li>
+        </ul>
+        <p class="stat-sub" style="margin-bottom: 0;">
+          Quote live markets in the <a href="/orderbook" class="nav-link">Order Book Simulator &rarr;</a>
+        </p>
+      </section>
+
+      <section id="rng-ledger" class="card stack-gap">
+        <h2 class="section-title">9. Cryptographic RNG &amp; Append-Only Coin Ledger (<span class="mono">app/games/rng.py</span>, <span class="mono">app/ledger.py</span>)</h2>
+        <ul>
+          <li>
+            <strong>Dual RNG Interface (<span class="mono">GameRNG</span>):</strong> Live games, WebSocket tables,
+            calibration prompts, and order books use <span class="mono">LiveRNG</span> (<span class="mono">random.SystemRandom</span>
+            backed by OS cryptographic entropy). Monte Carlo labs and bot tournaments use <span class="mono">SeededRNG</span>
+            so any experiment can be reproduced identically from its seed.
+          </li>
+          <li>
+            <strong>Append-Only Ledger:</strong> Every account starts with <span class="mono">1,000</span> virtual
+            coins. Wallets are never edited arbitrarily—every stake, win, refund, or forfeiture writes an immutable
+            <span class="mono">Transaction</span> row with <span class="mono">balance_after</span>, and
+            <span class="mono">audit_wallet_balance()</span> verifies that the full history sums exactly to the current balance.
+          </li>
+        </ul>
+      </section>
+    </main>
+  </body>
+</html>

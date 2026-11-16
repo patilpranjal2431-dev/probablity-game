@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Edge Lab — Calibration &amp; Brier Score Game</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body data-page="calibration">
+    <main class="container">
+      <header class="topbar">
+        <h1 class="topbar-title">Edge Lab — Probability Calibration</h1>
+        <div class="topbar-actions">
+          <a href="/lobby" class="nav-link">Live Lobby</a>
+          <a href="/orderbook" class="nav-link">Order Book</a>
+          <a href="/bankroll" class="nav-link">Bankroll</a>
+          <a href="/leaderboard" class="nav-link">Leaderboards</a>
+          <a href="/lab" class="nav-link">Quant Lab</a>
+          <a href="/profile" class="nav-link">Profile</a>
+        </div>
+      </header>
+
+      <div id="cal-error" class="error-banner hidden" role="alert"></div>
+
+      <section class="stats-grid">
+        <div class="card">
+          <div class="stat-label">Mean Brier Score</div>
+          <div id="cal-mean-brier" class="stat-value mono">--</div>
+          <div class="stat-sub">Lower is better (0.250 = naive 50% coin-flip baseline)</div>
+        </div>
+        <div class="card">
+          <div class="stat-label">Rounds Scored</div>
+          <div id="cal-rounds-count" class="stat-value mono">--</div>
+          <div class="stat-sub">Server-realized binary outcomes</div>
+        </div>
+        <div class="card">
+          <div class="stat-label">Mean |Forecast &minus; Exact p|</div>
+          <div id="cal-prob-err" class="stat-value mono">--</div>
+          <div class="stat-sub">Distance from exact analytical probability</div>
+        </div>
+      </section>
+
+      <section class="card stack-gap">
+        <div class="topbar" style="margin-bottom: 0.75rem; padding-bottom: 0.65rem;">
+          <h2 id="cal-prompt-category" class="section-title" style="margin: 0;">Calibration Challenge</h2>
+          <button type="button" id="cal-next-btn" class="btn btn-secondary">New Question</button>
+        </div>
+        <p id="cal-question-text" style="font-size: 1.05rem; margin-top: 0;">Loading question...</p>
+
+        <form id="cal-guess-form" class="controls-row">
+          <div class="field" style="flex: 1; min-width: 240px;">
+            <label for="cal-prob-slider">Your Probability Estimate: <span id="cal-prob-pct" class="mono">50%</span></label>
+            <input id="cal-prob-slider" type="range" min="0" max="100" step="1" value="50" />
+          </div>
+          <div class="field">
+            <label for="cal-prob-input">Exact Decimal (0..1)</label>
+            <input id="cal-prob-input" name="estimated_prob" type="number" min="0" max="1" step="0.01" value="0.50" required />
+          </div>
+          <div class="field">
+            <button type="submit" id="cal-submit-btn" class="btn btn-primary">Lock In Estimate</button>
+          </div>
+        </form>
+
+        <div id="cal-feedback" class="card stack-gap hidden" style="background: var(--bg);">
+          <div class="stat-label">Last Round Result</div>
+          <div id="cal-feedback-title" class="stat-value mono" style="font-size: 1.25rem;">--</div>
+          <p id="cal-feedback-detail" class="stat-sub" style="margin-top: 0.4rem;">--</p>
+        </div>
+      </section>
+
+      <section class="card stack-gap">
+        <h2 class="section-title">Brier Score Over Time</h2>
+        <div class="chart-box">
+          <svg
+            id="brier-time-chart"
+            class="chart-svg"
+            viewBox="0 0 820 300"
+            role="img"
+            aria-label="Brier score and cumulative mean Brier score over rounds"
+          ></svg>
+        </div>
+        <div class="legend">
+          <span class="legend-item"><span class="legend-swatch" style="background: #38bdf8;"></span>Cumulative Mean Brier</span>
+          <span class="legend-item"><span class="legend-swatch" style="background: #94a3b8;"></span>Single-Round Brier</span>
+          <span class="legend-item"><span class="legend-swatch" style="border-top: 2px dashed #fbbf24;"></span>0.250 Uninformative Baseline</span>
+        </div>
+      </section>
+
+      <section class="card stack-gap">
+        <h2 class="section-title">Calibration Reliability Curve (Predicted vs. Observed)</h2>
+        <div class="chart-box">
+          <svg
+            id="calibration-curve-chart"
+            class="chart-svg"
+            viewBox="0 0 820 300"
+            role="img"
+            aria-label="Calibration reliability curve comparing predicted probabilities against empirical frequency"
+          ></svg>
+        </div>
+      </section>
+
+      <section class="card stack-gap">
+        <h2 class="section-title">Recent Calibration Rounds</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Category</th>
+                <th class="text-right">Your p&#770;</th>
+                <th class="text-right">Exact p</th>
+                <th>Outcome</th>
+                <th class="text-right">Brier Score</th>
+              </tr>
+            </thead>
+            <tbody id="cal-history-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <script src="/static/calibration.js"></script>
+  </body>
+</html>

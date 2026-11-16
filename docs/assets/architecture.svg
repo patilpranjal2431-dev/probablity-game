@@ -1,0 +1,109 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" width="960" height="540">
+  <defs>
+    <style>
+      .bg { fill: #0b1018; }
+      .panel { fill: #121923; stroke: #243042; stroke-width: 1.5; rx: 10; }
+      .box { fill: #182230; stroke: #38bdf8; stroke-width: 1.5; rx: 8; }
+      .box-green { fill: #182230; stroke: #34d399; stroke-width: 1.5; rx: 8; }
+      .box-amber { fill: #182230; stroke: #fbbf24; stroke-width: 1.5; rx: 8; }
+      .box-rose { fill: #182230; stroke: #fb7185; stroke-width: 1.5; rx: 8; }
+      .title { fill: #e6edf6; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 18px; font-weight: 700; }
+      .hdr { fill: #38bdf8; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.05em; }
+      .lbl { fill: #e6edf6; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 13px; font-weight: 600; }
+      .sub { fill: #8b9bb4; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; }
+      .arrow { stroke: #64748b; stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+      .arrow-accent { stroke: #38bdf8; stroke-width: 2; fill: none; marker-end: url(#arrowhead-accent); }
+    </style>
+    <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#64748b" />
+    </marker>
+    <marker id="arrowhead-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#38bdf8" />
+    </marker>
+  </defs>
+
+  <rect class="bg" width="960" height="540" />
+  <text x="32" y="38" class="title">Edge Lab — System Architecture</text>
+  <text x="32" y="58" class="sub">Server-Authoritative Quant &amp; Game Platform (FastAPI + WebSockets + SQLAlchemy/SQLite + Plain HTML/JS/SVG)</text>
+
+  <!-- Client Tier -->
+  <rect class="panel" x="32" y="80" width="896" height="104" rx="10" />
+  <text x="50" y="104" class="hdr">BROWSER CLIENT (Plain HTML / CSS / Vanilla JS + Inline SVG — Zero Frameworks)</text>
+  <rect class="box" x="50" y="116" width="162" height="52" rx="8" />
+  <text x="131" y="138" text-anchor="middle" class="lbl">Auth &amp; Profile</text>
+  <text x="131" y="156" text-anchor="middle" class="sub">/ , /profile</text>
+
+  <rect class="box" x="226" y="116" width="162" height="52" rx="8" />
+  <text x="307" y="138" text-anchor="middle" class="lbl">Quant &amp; Bankroll</text>
+  <text x="307" y="156" text-anchor="middle" class="sub">/lab , /bankroll</text>
+
+  <rect class="box" x="402" y="116" width="162" height="52" rx="8" />
+  <text x="483" y="138" text-anchor="middle" class="lbl">Arena &amp; Live Lobby</text>
+  <text x="483" y="156" text-anchor="middle" class="sub">/arena , /lobby (WS)</text>
+
+  <rect class="box" x="578" y="116" width="162" height="52" rx="8" />
+  <text x="659" y="138" text-anchor="middle" class="lbl">Calibration &amp; Book</text>
+  <text x="659" y="156" text-anchor="middle" class="sub">/calibration , /orderbook</text>
+
+  <rect class="box" x="754" y="116" width="156" height="52" rx="8" />
+  <text x="832" y="138" text-anchor="middle" class="lbl">Skill &amp; Docs</text>
+  <text x="832" y="156" text-anchor="middle" class="sub">/leaderboard , /docs</text>
+
+  <!-- Arrows Client -> API -->
+  <line x1="250" y1="184" x2="250" y2="216" class="arrow-accent" />
+  <text x="260" y="205" class="sub">REST JSON + HttpOnly Cookie</text>
+  <line x1="650" y1="184" x2="650" y2="216" class="arrow-accent" />
+  <text x="660" y="205" class="sub">WebSocket (/ws/lobby/{id})</text>
+
+  <!-- API & Realtime Layer -->
+  <rect class="panel" x="32" y="220" width="896" height="100" rx="10" />
+  <text x="50" y="244" class="hdr">FASTAPI SERVER LAYER (app/main.py — Input Validation, Auth &amp; Privacy Filtering)</text>
+
+  <rect class="box-rose" x="50" y="256" width="190" height="48" rx="8" />
+  <text x="145" y="276" text-anchor="middle" class="lbl">Auth &amp; Session Guard</text>
+  <text x="145" y="294" text-anchor="middle" class="sub">Argon2id + SHA-256 Tokens</text>
+
+  <rect class="box" x="256" y="256" width="210" height="48" rx="8" />
+  <text x="361" y="276" text-anchor="middle" class="lbl">REST Routers</text>
+  <text x="361" y="294" text-anchor="middle" class="sub">quant / game / calib / ob / lb</text>
+
+  <rect class="box-amber" x="482" y="256" width="224" height="48" rx="8" />
+  <text x="594" y="276" text-anchor="middle" class="lbl">LobbyManager (WebSockets)</text>
+  <text x="594" y="294" text-anchor="middle" class="sub">Turn timers, disconnects, privacy</text>
+
+  <rect class="box-green" x="722" y="256" width="188" height="48" rx="8" />
+  <text x="816" y="276" text-anchor="middle" class="lbl">Audit Ledger Service</text>
+  <text x="816" y="294" text-anchor="middle" class="sub">app/ledger.py (atomic tx)</text>
+
+  <!-- Arrows API -> Engines & DB -->
+  <line x1="250" y1="320" x2="250" y2="354" class="arrow" />
+  <line x1="710" y1="320" x2="710" y2="354" class="arrow" />
+
+  <!-- Core Engines -->
+  <rect class="panel" x="32" y="358" width="540" height="150" rx="10" />
+  <text x="50" y="382" class="hdr">PURE-PYTHON QUANT &amp; GAME ENGINES (No Direct DB Coupling)</text>
+
+  <rect class="box-green" x="50" y="396" width="244" height="96" rx="8" />
+  <text x="172" y="418" text-anchor="middle" class="lbl">Quant Suite (app/quant/)</text>
+  <text x="64" y="438" class="sub">• exact.py (DP dice, 2.6M poker)</text>
+  <text x="64" y="454" class="sub">• monte_carlo.py + convergence.py</text>
+  <text x="64" y="470" class="sub">• bankroll.py (Kelly + Risk of Ruin)</text>
+  <text x="64" y="486" class="sub">• calibration.py (Brier scores)</text>
+
+  <rect class="box-amber" x="310" y="396" width="244" height="96" rx="8" />
+  <text x="432" y="418" text-anchor="middle" class="lbl">Game &amp; Market Engines (app/games/)</text>
+  <text x="324" y="438" class="sub">• rng.py (LiveRNG / SeededRNG)</text>
+  <text x="324" y="454" class="sub">• engine.py + bots.py + tournament.py</text>
+  <text x="324" y="470" class="sub">• grading.py (Action EV &amp; Regret)</text>
+  <text x="324" y="486" class="sub">• order_book.py (MM &amp; Adv Sel)</text>
+
+  <!-- Persistence Layer -->
+  <rect class="panel" x="592" y="358" width="336" height="150" rx="10" />
+  <text x="610" y="382" class="hdr">PERSISTENCE (SQLAlchemy 2.0 + SQLite)</text>
+  <rect class="box" x="610" y="396" width="300" height="96" rx="8" />
+  <text x="760" y="418" text-anchor="middle" class="lbl">Audited State (app/models.py)</text>
+  <text x="624" y="438" class="sub">• users &amp; user_sessions</text>
+  <text x="624" y="454" class="sub">• wallets &amp; transactions (append-only)</text>
+  <text x="624" y="470" class="sub">• games, hands &amp; decision_grades</text>
+  <text x="624" y="486" class="sub">• calibration_rounds &amp; order_book_sessions</text>
+</svg>

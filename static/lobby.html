@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Edge Lab — Live WebSocket Lobby</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body data-page="lobby">
+    <main class="container">
+      <header class="topbar">
+        <h1 class="topbar-title">Edge Lab — Live Table Lobby</h1>
+        <div class="topbar-actions">
+          <a href="/leaderboard" class="nav-link">Leaderboards</a>
+          <a href="/orderbook" class="nav-link">Order Book</a>
+          <a href="/bankroll" class="nav-link">Bankroll</a>
+          <a href="/calibration" class="nav-link">Calibration</a>
+          <a href="/arena" class="nav-link">Bot Arena</a>
+          <a href="/lab" class="nav-link">Quant Lab</a>
+          <a href="/docs" class="nav-link">Docs</a>
+          <a href="/profile" class="nav-link">Profile</a>
+        </div>
+      </header>
+
+      <div id="lobby-error" class="error-banner hidden" role="alert"></div>
+
+      <section class="card">
+        <h2 class="section-title">Create Table</h2>
+        <form id="create-table-form" class="controls-row">
+          <div class="field">
+            <label for="lobby-game-type">Game</label>
+            <select id="lobby-game-type" name="game_type">
+              <option value="dice_betting">Heads-Up Dice Betting</option>
+              <option value="one_card_poker">Simplified 1-Card Poker</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="lobby-opponent-type">Opponent</label>
+            <select id="lobby-opponent-type" name="opponent_type">
+              <option value="bot">Vs Bot</option>
+              <option value="human">Vs Human (2-Player)</option>
+            </select>
+          </div>
+          <div class="field" id="bot-strategy-field">
+            <label for="lobby-bot-strategy">Bot Strategy</label>
+            <select id="lobby-bot-strategy" name="bot_strategy">
+              <option value="ev_max">EV-Max Bot</option>
+              <option value="kelly">Kelly Bot</option>
+              <option value="cautious">Cautious Bot</option>
+              <option value="random">Random Bot</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="lobby-ante">Ante</label>
+            <input id="lobby-ante" name="ante" type="number" min="1" max="500" value="10" required />
+          </div>
+          <div class="field">
+            <button type="submit" class="btn btn-primary">Create &amp; Join</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="card stack-gap">
+        <div class="topbar" style="margin-bottom: 0.75rem; padding-bottom: 0.65rem;">
+          <h2 class="section-title" style="margin: 0;">Open Tables</h2>
+          <button type="button" id="refresh-lobbies-btn" class="btn btn-secondary">Refresh</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Table</th>
+                <th>Game</th>
+                <th>Mode</th>
+                <th>Seats</th>
+                <th>Status</th>
+                <th class="text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody id="lobbies-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="active-table-panel" class="card stack-gap hidden">
+        <div class="topbar" style="margin-bottom: 1rem; padding-bottom: 0.65rem;">
+          <h2 id="table-heading" class="section-title" style="margin: 0;">Table #--</h2>
+          <button type="button" id="leave-table-btn" class="btn btn-secondary">Disconnect</button>
+        </div>
+
+        <div class="stats-grid">
+          <div class="card">
+            <div class="stat-label">Your Private Hand</div>
+            <div id="private-card-val" class="stat-value mono">--</div>
+            <div id="private-equity-val" class="stat-sub">Equity: --</div>
+          </div>
+          <div class="card">
+            <div class="stat-label">Pot &amp; Turn</div>
+            <div id="pot-val" class="stat-value mono">--</div>
+            <div id="turn-status-val" class="stat-sub">--</div>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Seat</th>
+                <th>Player</th>
+                <th class="text-right">Wallet Stack</th>
+                <th class="text-right">In Pot</th>
+                <th class="text-right">Status</th>
+              </tr>
+            </thead>
+            <tbody id="seats-tbody"></tbody>
+          </table>
+        </div>
+
+        <div class="action-bar">
+          <button type="button" id="btn-check" class="btn btn-secondary">Check</button>
+          <button type="button" id="btn-call" class="btn btn-primary" style="width: auto;">Call</button>
+          <input id="bet-amount-input" type="number" min="1" value="10" aria-label="Bet amount" />
+          <button type="button" id="btn-bet" class="btn btn-primary" style="width: auto;">Bet</button>
+          <button type="button" id="btn-fold" class="btn btn-danger">Fold</button>
+          <button type="button" id="btn-next-hand" class="btn btn-secondary">Next Hand</button>
+        </div>
+
+        <h3 class="section-title stack-gap">Table Event Feed</h3>
+        <ul id="event-log" class="event-log mono"></ul>
+      </section>
+    </main>
+
+    <script src="/static/lobby.js"></script>
+  </body>
+</html>

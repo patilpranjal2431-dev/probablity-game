@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Edge Lab — Skill vs. Luck Explained</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body data-page="skill-vs-luck">
+    <main class="container">
+      <header class="topbar">
+        <h1 class="topbar-title">Edge Lab — Skill vs. Luck</h1>
+        <div class="topbar-actions">
+          <a href="/leaderboard" class="nav-link">Leaderboards</a>
+          <a href="/lobby" class="nav-link">Live Lobby</a>
+          <a href="/bankroll" class="nav-link">Bankroll</a>
+          <a href="/calibration" class="nav-link">Calibration</a>
+          <a href="/arena" class="nav-link">Bot Arena</a>
+          <a href="/lab" class="nav-link">Quant Lab</a>
+          <a href="/profile" class="nav-link">Profile</a>
+        </div>
+      </header>
+
+      <section class="card">
+        <h2 class="section-title">Why Edge Lab Separates Skill (EV) from Coins (Luck + Skill)</h2>
+        <p>
+          In quantitative trading, poker, and risk management, judging a strategy solely by short-term
+          P&amp;L (coins won) is misleading because realized outcomes combine <strong>decision quality</strong>
+          with <strong>random variance</strong>:
+        </p>
+        <p class="mono" style="padding: 0.75rem 1rem; background: var(--bg); border: 1px solid var(--border); border-radius: 6px;">
+          Realized Coin Profit = Decision Expected Value (Skill) + Outcome Variance (Luck)
+        </p>
+        <p>
+          Over dozens of hands, variance dominates coin balances. A player who makes mathematically sound
+          calls can lose coins on bad showdowns, while a reckless player can get lucky and briefly top
+          the coin leaderboard. Edge Lab tracks both leaderboards side by side so you can separate
+          process from outcome.
+        </p>
+      </section>
+
+      <section class="stats-grid stack-gap">
+        <div class="card">
+          <div class="stat-label">Metric 1 — Coins Leaderboard</div>
+          <div class="stat-value">Luck + Skill</div>
+          <p class="stat-sub">
+            Ranked by your audited wallet balance. Reflects both your betting decisions and random card/die
+            showdowns. High variance over small sample sizes.
+          </p>
+        </div>
+
+        <div class="card">
+          <div class="stat-label">Metric 2 — Cumulative EV Leaderboard</div>
+          <div class="stat-value">Decision Skill</div>
+          <p class="stat-sub">
+            Sum of the exact Expected Value of every action you took, computed at the moment you acted
+            before the opponent's hidden hand is revealed. Eliminates showdown/runout luck.
+          </p>
+        </div>
+
+        <div class="card">
+          <div class="stat-label">Metric 3 — Decision Regret</div>
+          <div class="stat-value mono">Best EV &minus; Taken EV</div>
+          <p class="stat-sub">
+            Always &ge; 0. Measures how many expected coins you gave up compared to the mathematically
+            optimal action at that exact spot. Zero regret means optimal play even with bad cards.
+          </p>
+        </div>
+      </section>
+
+      <section class="card stack-gap">
+        <h2 class="section-title">How Edge Lab Computes Decision EV &amp; Regret</h2>
+        <p>
+          After every hand finishes in the Live Lobby, the server evaluates each legal choice you had
+          from your observation point (<span class="mono">pot</span>, <span class="mono">to_call</span>,
+          and exact showdown <span class="mono">equity</span>):
+        </p>
+        <table>
+          <thead>
+            <tr>
+              <th>Action</th>
+              <th>Formula (Incremental EV from Decision Point)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="mono">FOLD</td>
+              <td class="mono">EV = 0.00 (no extra coins risked; prior pot chips are sunk)</td>
+            </tr>
+            <tr>
+              <td class="mono">CALL</td>
+              <td class="mono">EV = equity &times; (pot + to_call) &minus; to_call</td>
+            </tr>
+            <tr>
+              <td class="mono">CHECK</td>
+              <td class="mono">EV = equity &times; pot</td>
+            </tr>
+            <tr>
+              <td class="mono">BET b</td>
+              <td class="mono">
+                Exact expectation over opponent's remaining hands: fold (+pot) when opp_equity &lt; b / (pot + 2b),
+                else showdown (+(pot + b) win, +pot/2 tie, &minus;b loss)
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="card stack-gap">
+        <h2 class="section-title">Concrete Example: Winning EV vs. Winning Coins</h2>
+        <p>
+          Suppose in <strong>1-Card Poker</strong> the pot is <strong>40 coins</strong> and your opponent bets
+          <strong>20 coins</strong> (so <span class="mono">pot = 40</span>, <span class="mono">to_call = 20</span>).
+          You hold a King (<span class="mono">equity &approx; 89.2%</span>):
+        </p>
+        <ul>
+          <li>
+            <strong>EV(CALL)</strong> = <span class="mono">0.892 &times; (40 + 20) &minus; 20 = +33.53 coins</span>.
+          </li>
+          <li>
+            <strong>EV(FOLD)</strong> = <span class="mono">0.00 coins</span>.
+          </li>
+          <li>
+            If you <strong>CALL</strong>, your <strong>Regret = 0.00</strong>. Even if your opponent happens to
+            turn over an Ace and you lose 20 more coins on the ledger, the Skill Leaderboard still credits
+            you with <strong>+33.53 EV</strong>!
+          </li>
+          <li>
+            Conversely, if you <strong>FOLD</strong> because you were afraid of losing, you lock in
+            <strong>0.00 EV</strong> and incur <strong>33.53 coins of regret</strong>.
+          </li>
+        </ul>
+        <p style="margin-top: 1rem;">
+          <a href="/leaderboard" class="nav-link">&larr; Back to Skill vs. Coins Leaderboards</a>
+        </p>
+      </section>
+    </main>
+  </body>
+</html>

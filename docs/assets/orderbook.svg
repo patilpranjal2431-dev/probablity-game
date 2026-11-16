@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="520">
+<rect width="900" height="520" fill="#0b1018"/>
+    <text x="32" y="44" fill="#e6edf6" font-family="sans-serif" font-size="18" font-weight="700">Edge Lab — Order Book Post-Game Analysis</text>
+    <text x="340" y="42" fill="#38bdf8" font-family="sans-serif" font-size="11" font-weight="600">Quant Lab</text><text x="410" y="42" fill="#38bdf8" font-family="sans-serif" font-size="11" font-weight="600">Bot Arena</text><text x="480" y="42" fill="#38bdf8" font-family="sans-serif" font-size="11" font-weight="600">Live Lobby</text><text x="556" y="42" fill="#38bdf8" font-family="sans-serif" font-size="11" font-weight="600">Bankroll</text><text x="620" y="42" fill="#38bdf8" font-family="sans-serif" font-size="11" font-weight="600">Calibration</text><text x="702" y="42" fill="#e6edf6" font-family="sans-serif" font-size="11" font-weight="600">Order Book</text><text x="778" y="42" fill="#38bdf8" font-family="sans-serif" font-size="11" font-weight="600">Leaderboards</text><text x="866" y="42" fill="#38bdf8" font-family="sans-serif" font-size="11" font-weight="600">Docs</text>
+    <line x1="32" y1="60" x2="868" y2="60" stroke="#243042" stroke-width="1.5"/>
+<rect x="32" y="76" width="200" height="86" rx="8" fill="#121923" stroke="#243042"/>
+<text x="46" y="100" fill="#8b9bb4" font-family="sans-serif" font-size="11">TOTAL NET P&amp;L</text>
+<text x="46" y="132" fill="#34d399" font-family="monospace" font-size="22" font-weight="700">+14.72</text>
+<text x="46" y="150" fill="#8b9bb4" font-family="monospace" font-size="11">V_0=108.97 -> V_T=107.38</text>
+
+<rect x="244" y="76" width="200" height="86" rx="8" fill="#121923" stroke="#243042"/>
+<text x="258" y="100" fill="#8b9bb4" font-family="sans-serif" font-size="11">SPREAD CAPTURED</text>
+<text x="258" y="132" fill="#34d399" font-family="monospace" font-size="22" font-weight="700">+42.00</text>
+<text x="258" y="150" fill="#8b9bb4" font-family="monospace" font-size="11">Avg spread: 3.00</text>
+
+<rect x="456" y="76" width="200" height="86" rx="8" fill="#121923" stroke="#243042"/>
+<text x="470" y="100" fill="#8b9bb4" font-family="sans-serif" font-size="11">ADVERSE SELECTION</text>
+<text x="470" y="132" fill="#fb7185" font-family="monospace" font-size="22" font-weight="700">+36.25</text>
+<text x="470" y="150" fill="#8b9bb4" font-family="monospace" font-size="11">Informed vol: 39.3%</text>
+
+<rect x="668" y="76" width="200" height="86" rx="8" fill="#121923" stroke="#243042"/>
+<text x="682" y="100" fill="#8b9bb4" font-family="sans-serif" font-size="11">INVENTORY DRIFT</text>
+<text x="682" y="132" fill="#e6edf6" font-family="monospace" font-size="22" font-weight="700">+8.97</text>
+<text x="682" y="150" fill="#8b9bb4" font-family="monospace" font-size="11">Final inv: -6</text>
+
+<rect x="32" y="178" width="836" height="314" rx="8" fill="#121923" stroke="#243042"/>
+<text x="50" y="202" fill="#e6edf6" font-family="sans-serif" font-size="14" font-weight="600">Your Quotes vs. Revealed Hidden Fair Value V_t (10 Rounds)</text>
+<line x1="80" y1="215" x2="80" y2="440" stroke="#243042"/>
+<line x1="80" y1="440" x2="840" y2="440" stroke="#243042"/>
+<polyline points="80.0,286.9 164.4,281.3 248.9,338.9 333.3,329.6 417.8,342.7 502.2,229.3 586.7,335.2 671.1,333.4 755.6,365.0 840.0,234.9" fill="none" stroke="#fbbf24" stroke-width="2" stroke-dasharray="6,4"/>
+<polyline points="80.0,317.9 164.4,323.0 248.9,336.5 333.3,316.3 417.8,318.5 502.2,323.3 586.7,342.1 671.1,334.3 755.6,342.5 840.0,344.9" fill="none" stroke="#34d399" stroke-width="3"/>
+<polyline points="80.0,342.7 164.4,337.1 248.9,394.7 333.3,385.4 417.8,398.4 502.2,285.0 586.7,391.0 671.1,389.1 755.6,420.7 840.0,290.6" fill="none" stroke="#38bdf8" stroke-width="2" stroke-dasharray="6,4"/>
+<text x="80" y="472" fill="#34d399" font-family="sans-serif" font-size="12">— Revealed True Fair Value V_t</text>
+<text x="320" y="472" fill="#fbbf24" font-family="sans-serif" font-size="12">-- Quoted Ask</text>
+<text x="450" y="472" fill="#38bdf8" font-family="sans-serif" font-size="12">-- Quoted Bid</text>
+</svg>

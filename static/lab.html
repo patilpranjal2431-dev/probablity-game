@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Edge Lab — Quant &amp; Convergence Lab</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body data-page="lab">
+    <main class="container">
+      <header class="topbar">
+        <h1 class="topbar-title">Edge Lab — Quant &amp; Convergence Lab</h1>
+        <div class="topbar-actions">
+          <a href="/lobby" class="nav-link">Live Lobby</a>
+          <a href="/bankroll" class="nav-link">Bankroll</a>
+          <a href="/calibration" class="nav-link">Calibration</a>
+          <a href="/leaderboard" class="nav-link">Leaderboards</a>
+          <a href="/arena" class="nav-link">Bot Arena</a>
+          <a href="/profile" class="nav-link">Profile</a>
+          <a href="/docs" class="nav-link">Docs</a>
+          <a href="/" class="nav-link">Sign In</a>
+        </div>
+      </header>
+
+      <div id="lab-error" class="error-banner hidden" role="alert"></div>
+
+      <section class="card">
+        <h2 class="section-title">Seeded Monte Carlo Convergence &amp; Coverage</h2>
+        <form id="convergence-form" class="controls-row">
+          <div class="field">
+            <label for="problem-select">Benchmark Problem</label>
+            <select id="problem-select" name="problem">
+              <option value="birthday_23">Birthday Collision (23 people)</option>
+              <option value="dice_2d6_sum_7">2d6 Sum == 7 (DP Exact)</option>
+              <option value="hypergeometric_ace">At least 1 Ace in 5 Cards</option>
+              <option value="poker_one_pair">5-Card Poker: One Pair</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="seed-input">RNG Seed</label>
+            <input id="seed-input" name="seed" type="number" min="0" max="2147483647" value="42" required />
+          </div>
+          <div class="field">
+            <button type="submit" class="btn btn-primary">Run Analysis</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="stats-grid stack-gap">
+        <div class="card">
+          <div class="stat-label">Exact Probability</div>
+          <div id="exact-prob-val" class="stat-value mono">--</div>
+          <div id="exact-prob-label" class="stat-sub">--</div>
+        </div>
+        <div class="card">
+          <div class="stat-label">Log-Log Error Slope</div>
+          <div id="slope-val" class="stat-value mono">--</div>
+          <div class="stat-sub">Theoretical Monte Carlo slope: -0.50</div>
+        </div>
+        <div class="card">
+          <div class="stat-label">Wilson 95% CI Coverage</div>
+          <div id="coverage-val" class="stat-value mono">--</div>
+          <div id="coverage-sub" class="stat-sub">--</div>
+        </div>
+      </section>
+
+      <section class="card stack-gap">
+        <h2 class="section-title">Error vs Sample Size n (Log-Log Scale)</h2>
+        <div class="chart-box">
+          <svg
+            id="convergence-chart"
+            class="chart-svg"
+            viewBox="0 0 820 380"
+            role="img"
+            aria-label="Log-log convergence chart of absolute Monte Carlo error versus n"
+          ></svg>
+        </div>
+        <div class="legend">
+          <span class="legend-item">
+            <span class="legend-swatch" style="background: #38bdf8;"></span>
+            Empirical |estimate - exact|
+          </span>
+          <span class="legend-item">
+            <span class="legend-swatch" style="border-top: 2px dashed #fbbf24;"></span>
+            1 / sqrt(n) reference
+          </span>
+          <span class="legend-item">
+            <span class="legend-swatch" style="border-top: 2px dotted #34d399;"></span>
+            Theoretical SE: sqrt(p(1-p)/n)
+          </span>
+        </div>
+      </section>
+
+      <section class="card stack-gap">
+        <h2 class="section-title">Sample Sweep Results</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th class="text-right">n</th>
+                <th class="text-right">MC Estimate</th>
+                <th class="text-right">Wilson 95% CI</th>
+                <th class="text-right">|Error|</th>
+                <th class="text-right">1 / sqrt(n)</th>
+              </tr>
+            </thead>
+            <tbody id="convergence-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="card stack-gap">
+        <h2 class="section-title">Exact 5-Card Poker Hand Counts (Total: 2,598,960)</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Hand Rank</th>
+                <th class="text-right">Exact Count</th>
+                <th class="text-right">Exact Probability</th>
+              </tr>
+            </thead>
+            <tbody id="poker-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <script src="/static/lab.js"></script>
+  </body>
+</html>
