@@ -17,11 +17,17 @@ function extractErrorMessage(payload, fallback) {
 }
 
 function showBanner(element, message) {
+  if (!element) {
+    return;
+  }
   element.textContent = message;
   element.classList.remove("hidden");
 }
 
 function hideBanner(element) {
+  if (!element) {
+    return;
+  }
   element.textContent = "";
   element.classList.add("hidden");
 }
@@ -46,76 +52,39 @@ async function apiJson(url, options = {}) {
   return { response, payload };
 }
 
-function initAuthPage() {
-  const tabLogin = document.getElementById("tab-login");
-  const tabRegister = document.getElementById("tab-register");
-  const loginForm = document.getElementById("login-form");
-  const registerForm = document.getElementById("register-form");
-  const errorBanner = document.getElementById("auth-error");
+function initMenuPage() {
+  const sessionText = document.getElementById("menu-session-text");
+  const errorBanner = document.getElementById("menu-error");
+  let hasSession = false;
 
-  // Redirect straight to profile if the user already has a valid session.
-  apiJson("/api/profile").then(({ response }) => {
-    if (response.ok) {
-      window.location.replace("/profile");
+  apiJson("/api/profile").then(({ response, payload }) => {
+    if (response.ok && payload && payload.user) {
+      hasSession = true;
+      if (sessionText) {
+        sessionText.textContent = `@${payload.user.username} · ${Number(payload.balance).toLocaleString()} coins`;
+      }
     }
   });
 
-  function setActiveTab(mode) {
-    hideBanner(errorBanner);
-    const isLogin = mode === "login";
-    tabLogin.classList.toggle("active", isLogin);
-    tabRegister.classList.toggle("active", !isLogin);
-    tabLogin.setAttribute("aria-selected", String(isLogin));
-    tabRegister.setAttribute("aria-selected", String(!isLogin));
-    loginForm.classList.toggle("hidden", !isLogin);
-    registerForm.classList.toggle("hidden", isLogin);
+  const sessionLinks = document.querySelectorAll('a[data-requires-session="true"]');
+  for (const link of sessionLinks) {
+    link.addEventListener("click", async (event) => {
+      if (hasSession) {
+        return;
+      }
+      event.preventDefault();
+      hideBanner(errorBanner);
+      const targetHref = link.getAttribute("href") || "/profile";
+
+      const { response, payload } = await apiJson("/api/auth/guest", { method: "POST" });
+      if (!response.ok) {
+        showBanner(errorBanner, extractErrorMessage(payload, "Unable to initialize desk session."));
+        return;
+      }
+      hasSession = true;
+      window.location.assign(targetHref);
+    });
   }
-
-  tabLogin.addEventListener("click", () => setActiveTab("login"));
-  tabRegister.addEventListener("click", () => setActiveTab("register"));
-
-  loginForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    hideBanner(errorBanner);
-
-    const formData = new FormData(loginForm);
-    const { response, payload } = await apiJson("/api/auth/login", {
-      method: "POST",
-      body: JSON.stringify({
-        username: String(formData.get("username") || ""),
-        password: String(formData.get("password") || ""),
-      }),
-    });
-
-    if (!response.ok) {
-      showBanner(errorBanner, extractErrorMessage(payload, "Sign in failed."));
-      return;
-    }
-
-    window.location.assign("/profile");
-  });
-
-  registerForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    hideBanner(errorBanner);
-
-    const formData = new FormData(registerForm);
-    const { response, payload } = await apiJson("/api/auth/register", {
-      method: "POST",
-      body: JSON.stringify({
-        username: String(formData.get("username") || ""),
-        email: String(formData.get("email") || ""),
-        password: String(formData.get("password") || ""),
-      }),
-    });
-
-    if (!response.ok) {
-      showBanner(errorBanner, extractErrorMessage(payload, "Registration failed."));
-      return;
-    }
-
-    window.location.assign("/profile");
-  });
 }
 
 function formatCoins(value) {
@@ -207,8 +176,8 @@ async function initProfilePage() {
 
 document.addEventListener("DOMContentLoaded", () => {
   const page = document.body.dataset.page;
-  if (page === "auth") {
-    initAuthPage();
+  if (page === "menu") {
+    initMenuPage();
   } else if (page === "profile") {
     initProfilePage();
   }

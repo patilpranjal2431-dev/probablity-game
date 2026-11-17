@@ -51,3 +51,32 @@ def test_required_project_documentation_files_exist() -> None:
     )
     for heading in expected_headings:
         assert heading in readme_text
+
+
+def test_menu_homepage_guest_session_and_background_asset(client: TestClient) -> None:
+    home_res = client.get("/")
+    assert home_res.status_code == 200
+    assert "login-form" not in home_res.text
+    assert "register-form" not in home_res.text
+    assert "Live Table Lobby" in home_res.text
+    assert "Order Book Market Making" in home_res.text
+    assert "Quant &amp; Convergence Lab" in home_res.text
+
+    css_res = client.get("/static/styles.css")
+    assert css_res.status_code == 200
+    bg_path = (
+        "/assets/aistudio/the-dice-roll-chance-outcome-excitement-unpredictable-"
+        "future-ideal-for-game-development-probability-destiny-themes-photo_319ba2b7.jpeg"
+    )
+    assert bg_path in css_res.text
+
+    img_res = client.get(bg_path)
+    assert img_res.status_code == 200
+    assert img_res.headers["content-type"].startswith("image/jpeg")
+
+    guest_res = client.post("/api/auth/guest")
+    assert guest_res.status_code == 200
+    assert guest_res.json()["balance"] == 1000
+    assert client.get("/profile").status_code == 200
+    assert client.get("/orderbook").status_code == 200
+

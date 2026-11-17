@@ -3,88 +3,258 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Edge Lab — Sign In</title>
+    <title>Edge Lab — Quantitative Finance &amp; Decision Command Menu</title>
     <link rel="stylesheet" href="/static/styles.css" />
   </head>
-  <body data-page="auth">
-    <main class="auth-shell">
-      <div class="brand">
-        <h1>Edge Lab</h1>
-        <p>Virtual-coin quantitative decision platform (no real money).</p>
-      </div>
-
-      <section class="card">
-        <div class="tabs" role="tablist">
-          <button type="button" id="tab-login" class="tab-btn active" role="tab" aria-selected="true">
-            Sign In
-          </button>
-          <button type="button" id="tab-register" class="tab-btn" role="tab" aria-selected="false">
-            Register
-          </button>
+  <body data-page="menu">
+    <main class="menu-shell">
+      <header class="corp-header">
+        <div class="corp-brand">
+          <div class="corp-mark mono" aria-hidden="true">EL</div>
+          <div class="corp-brand-text">
+            <h1>Edge Lab</h1>
+            <p>Quantitative Decision &amp; Market Simulation Suite</p>
+          </div>
         </div>
 
-        <div id="auth-error" class="error-banner hidden" role="alert"></div>
+        <div class="corp-meta">
+          <div id="menu-session-status" class="corp-status-chip mono">
+            <span class="corp-status-dot" aria-hidden="true"></span>
+            <span id="menu-session-text">Sandbox Desk · 1,000 Virtual Coins</span>
+          </div>
+          <a href="/docs" class="nav-link">Algorithms</a>
+          <a href="/api/docs" class="nav-link">OpenAPI</a>
+          <a href="/profile" class="nav-link" data-requires-session="true">Wallet Ledger</a>
+        </div>
+      </header>
 
-        <form id="login-form">
-          <div class="field">
-            <label for="login-username">Username</label>
-            <input id="login-username" name="username" type="text" autocomplete="username" required />
-          </div>
-          <div class="field">
-            <label for="login-password">Password</label>
-            <input
-              id="login-password"
-              name="password"
-              type="password"
-              autocomplete="current-password"
-              required
-            />
-          </div>
-          <button type="submit" class="btn btn-primary">Sign In</button>
-        </form>
+      <div id="menu-error" class="error-banner hidden" role="alert"></div>
 
-        <form id="register-form" class="hidden">
-          <div class="field">
-            <label for="reg-username">Username</label>
-            <input
-              id="reg-username"
-              name="username"
-              type="text"
-              autocomplete="username"
-              minlength="3"
-              maxlength="32"
-              pattern="[a-zA-Z0-9_]+"
-              required
-            />
-            <div class="hint">3–32 characters: letters, numbers, or underscores.</div>
+      <section class="menu-hero">
+        <p class="menu-eyebrow">Institutional Quantitative Sandbox · Zero Real Money</p>
+        <h2 class="menu-title">
+          Probability, Expected Value &amp; Market Microstructure — Graded in Real Time
+        </h2>
+        <p class="menu-subtitle">
+          Select a desk below to benchmark algorithmic bots, trade live WebSocket tables, quote
+          two-sided markets against informed order flow, test Kelly sizing under risk of ruin,
+          or audit exact combinatorics against Monte Carlo convergence.
+        </p>
+
+        <div class="menu-kpi-strip">
+          <div class="menu-kpi-item">
+            <span class="menu-kpi-label">Engine Architecture</span>
+            <span class="menu-kpi-value">Server-Authoritative Python</span>
           </div>
-          <div class="field">
-            <label for="reg-email">Email</label>
-            <input id="reg-email" name="email" type="email" autocomplete="email" required />
+          <div class="menu-kpi-item">
+            <span class="menu-kpi-label">Randomness Standard</span>
+            <span class="menu-kpi-value mono">LiveRNG / SeededRNG</span>
           </div>
-          <div class="field">
-            <label for="reg-password">Password</label>
-            <input
-              id="reg-password"
-              name="password"
-              type="password"
-              autocomplete="new-password"
-              minlength="8"
-              maxlength="128"
-              required
-            />
-            <div class="hint">Minimum 8 characters. Starts with 1,000 virtual coins.</div>
+          <div class="menu-kpi-item">
+            <span class="menu-kpi-label">Skill Metric</span>
+            <span class="menu-kpi-value">Decision EV &amp; Regret</span>
           </div>
-          <button type="submit" class="btn btn-primary">Create Account</button>
-        </form>
+          <div class="menu-kpi-item">
+            <span class="menu-kpi-label">Accounting Integrity</span>
+            <span class="menu-kpi-value">Append-Only Coin Ledger</span>
+          </div>
+        </div>
       </section>
-      <p class="hint" style="text-align: center; margin-top: 1rem;">
-        Explore without signing in:
-        <a href="/docs" class="nav-link">Algorithm Docs</a> &middot;
-        <a href="/lab" class="nav-link">Quant Lab</a> &middot;
-        <a href="/bankroll" class="nav-link">Bankroll Simulator</a> &middot;
-        <a href="/leaderboard" class="nav-link">Leaderboards</a>
-      </p>
+
+      <section class="menu-section">
+        <div class="menu-section-head">
+          <h2 class="menu-section-title">01 · Execution &amp; Live Desks</h2>
+          <span class="menu-section-caption">Real-time tables, market making, and algorithmic tournaments</span>
+        </div>
+        <div class="menu-grid">
+          <a href="/lobby" class="menu-card" data-requires-session="true">
+            <div>
+              <div class="menu-card-top">
+                <span class="menu-card-code mono">DESK 01</span>
+                <span class="menu-card-tag">WebSockets</span>
+              </div>
+              <h3>Live Table Lobby</h3>
+              <p>
+                Compete heads-up in Dice Betting or 1-Card Poker against human players or bots
+                with atomic wallet settlement, turn timers, and hidden-state privacy.
+              </p>
+            </div>
+            <div class="menu-card-foot">
+              <span>Enter Live Lobby</span>
+              <span>&rarr;</span>
+            </div>
+          </a>
+
+          <a href="/orderbook" class="menu-card" data-requires-session="true">
+            <div>
+              <div class="menu-card-top">
+                <span class="menu-card-code mono">DESK 02</span>
+                <span class="menu-card-tag">Microstructure</span>
+              </div>
+              <h3>Order Book Market Making</h3>
+              <p>
+                Quote bid, ask, and size around an unobserved fair value while noise, retail, and
+                informed arbitrage bots hit your quotes. Audit adverse selection post-game.
+              </p>
+            </div>
+            <div class="menu-card-foot">
+              <span>Launch Market Desk</span>
+              <span>&rarr;</span>
+            </div>
+          </a>
+
+          <a href="/arena" class="menu-card">
+            <div>
+              <div class="menu-card-top">
+                <span class="menu-card-code mono">DESK 03</span>
+                <span class="menu-card-tag">Benchmarks</span>
+              </div>
+              <h3>Bot Tournament Arena</h3>
+              <p>
+                Run seeded round-robin tournaments across Random, Cautious, EV-Maximising, and
+                Kelly-Sizing strategies with win-rate and EV confidence intervals.
+              </p>
+            </div>
+            <div class="menu-card-foot">
+              <span>Open Bot Arena</span>
+              <span>&rarr;</span>
+            </div>
+          </a>
+        </div>
+      </section>
+
+      <section class="menu-section">
+        <div class="menu-section-head">
+          <h2 class="menu-section-title">02 · Quantitative Research &amp; Risk</h2>
+          <span class="menu-section-caption">Exact combinatorics, Kelly growth, and forecast scoring</span>
+        </div>
+        <div class="menu-grid">
+          <a href="/lab" class="menu-card">
+            <div>
+              <div class="menu-card-top">
+                <span class="menu-card-code mono">LAB 04</span>
+                <span class="menu-card-tag">Exact &amp; MC</span>
+              </div>
+              <h3>Quant &amp; Convergence Lab</h3>
+              <p>
+                Explore DP dice distributions, 2,598,960 five-card poker counts, Hypergeometric &amp;
+                Birthday formulas, Wilson 95% CIs, and 1/&radic;n log-log convergence.
+              </p>
+            </div>
+            <div class="menu-card-foot">
+              <span>Open Quant Lab</span>
+              <span>&rarr;</span>
+            </div>
+          </a>
+
+          <a href="/bankroll" class="menu-card">
+            <div>
+              <div class="menu-card-top">
+                <span class="menu-card-code mono">LAB 05</span>
+                <span class="menu-card-tag">Capital Sizing</span>
+              </div>
+              <h3>Bankroll &amp; Kelly Simulator</h3>
+              <p>
+                Compare Full vs. Half Kelly growth, inspect Gambler's Ruin closed-form odds, and
+                plot P10/Median/P90 trajectory fans with terminal outcome histograms.
+              </p>
+            </div>
+            <div class="menu-card-foot">
+              <span>Simulate Bankroll</span>
+              <span>&rarr;</span>
+            </div>
+          </a>
+
+          <a href="/calibration" class="menu-card" data-requires-session="true">
+            <div>
+              <div class="menu-card-top">
+                <span class="menu-card-code mono">LAB 06</span>
+                <span class="menu-card-tag">Brier Score</span>
+              </div>
+              <h3>Probability Calibration</h3>
+              <p>
+                Submit probability estimates on live server-drawn scenarios and track your proper
+                Brier score trajectory alongside a 5-bin empirical reliability curve.
+              </p>
+            </div>
+            <div class="menu-card-foot">
+              <span>Train Calibration</span>
+              <span>&rarr;</span>
+            </div>
+          </a>
+        </div>
+      </section>
+
+      <section class="menu-section">
+        <div class="menu-section-head">
+          <h2 class="menu-section-title">03 · Performance, Audit &amp; Documentation</h2>
+          <span class="menu-section-caption">Skill attribution, immutable ledger, and plain-language maths</span>
+        </div>
+        <div class="menu-grid">
+          <a href="/leaderboard" class="menu-card">
+            <div>
+              <div class="menu-card-top">
+                <span class="menu-card-code mono">AUDIT 07</span>
+                <span class="menu-card-tag">Skill vs Luck</span>
+              </div>
+              <h3>Skill &amp; Coins Leaderboards</h3>
+              <p>
+                Contrast the Cumulative EV leaderboard (pure decision quality and regret) against the
+                Coins leaderboard (luck plus skill), with methodology breakdown.
+              </p>
+            </div>
+            <div class="menu-card-foot">
+              <span>View Leaderboards</span>
+              <span>&rarr;</span>
+            </div>
+          </a>
+
+          <a href="/profile" class="menu-card" data-requires-session="true">
+            <div>
+              <div class="menu-card-top">
+                <span class="menu-card-code mono">AUDIT 08</span>
+                <span class="menu-card-tag">Wallet</span>
+              </div>
+              <h3>Wallet &amp; Transaction Ledger</h3>
+              <p>
+                Inspect your live virtual-coin balance and full append-only transaction audit trail
+                covering initial grants, stakes, settlements, and refunds.
+              </p>
+            </div>
+            <div class="menu-card-foot">
+              <span>Inspect Ledger</span>
+              <span>&rarr;</span>
+            </div>
+          </a>
+
+          <a href="/docs" class="menu-card">
+            <div>
+              <div class="menu-card-top">
+                <span class="menu-card-code mono">DOCS 09</span>
+                <span class="menu-card-tag">Reference</span>
+              </div>
+              <h3>Algorithms &amp; Methodology</h3>
+              <p>
+                Plain-language walkthrough of every quantitative formula, EV grading rule, bot
+                policy, and order-book P&amp;L identity powering Edge Lab.
+              </p>
+            </div>
+            <div class="menu-card-foot">
+              <span>Read Documentation</span>
+              <span>&rarr;</span>
+            </div>
+          </a>
+        </div>
+      </section>
+
+      <footer class="corp-footer">
+        <span>Edge Lab · Educational Quantitative Finance &amp; Probability Platform (Virtual Coins Only)</span>
+        <span>
+          <a href="/skill-vs-luck" class="nav-link">Skill vs. Luck Brief</a> &middot;
+          <a href="/api/docs" class="nav-link">OpenAPI Reference</a> &middot;
+          <a href="/health" class="nav-link">System Health</a>
+        </span>
+      </footer>
     </main>
 
     <script src="/static/app.js"></script>

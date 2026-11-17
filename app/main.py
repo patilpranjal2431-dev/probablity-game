@@ -30,6 +30,7 @@ from app.schemas import HealthResponse
 
 STATIC_DIR = Path(__file__).resolve().parent.parent / "static"
 DOCS_DIR = Path(__file__).resolve().parent.parent / "docs"
+PUBLIC_ASSETS_DIR = Path(__file__).resolve().parent.parent / "public" / "assets"
 
 
 @asynccontextmanager
@@ -70,6 +71,8 @@ def create_app(
 
     if STATIC_DIR.is_dir():
         application.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+    if PUBLIC_ASSETS_DIR.is_dir():
+        application.mount("/assets", StaticFiles(directory=str(PUBLIC_ASSETS_DIR)), name="assets")
 
     @application.get("/", include_in_schema=False)
     def home_page() -> FileResponse:

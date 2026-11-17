@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import secrets
 from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
@@ -223,6 +224,55 @@ def login(
         user=UserPublic.model_validate(user),
         balance=user.wallet.balance,
         message="Logged in successfully.",
+    )
+
+
+@router.post(
+    "/auth/guest",
+    response_model=AuthResponse,
+    summary="Initialize or reuse a sandbox virtual-coin session without a login wall",
+)
+def guest_session(
+    request: Request,
+    response: Response,
+    db: Annotated[Session, Depends(get_db)],
+    existing_user: Annotated[User | None, Depends(get_optional_user)],
+) -> AuthResponse:
+    if existing_user is not None:
+        verified_balance = audit_wallet_balance(db, existing_user.wallet.id)
+        return AuthResponse(
+            user=UserPublic.model_validate(existing_user),
+            balance=verified_balance,
+            message="Active session ready.",
+        )
+
+    settings = get_app_settings(request)
+    suffix = secrets.token_hex(4)
+    username = f"desk_{suffix}"
+    email = f"{username}@edgelab.local"
+    random_secret = secrets.token_urlsafe(24)
+
+    user = create_user_with_wallet(
+        db,
+        username=username,
+        email=email,
+        password_hash=hash_password(random_secret),
+        is_bot=False,
+        starting_balance=settings.initial_wallet_balance,
+    )
+    raw_token, _ = create_user_session(
+        db,
+        user.id,
+        ttl_seconds=settings.session_ttl_seconds,
+    )
+    db.commit()
+    db.refresh(user)
+
+    _set_session_cookie(request, response, raw_token, settings)
+    return AuthResponse(
+        user=UserPublic.model_validate(user),
+        balance=user.wallet.balance,
+        message="Sandbox desk session initialized.",
     )
 
 
